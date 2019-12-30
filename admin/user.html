@@ -10,40 +10,6 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
-    <script src="./libs/jquery-1.12.4.min.js"></script>
-    <script src="./libs/http.js"></script>
-    <script>
-        $(function () {
-
-
-            // $('#exampleInputFile').change(function () {
-            //     console.log(this.files)
-            //     let file = this.files[0];
-            //     console.log(URL.createObjectURL(file));
-
-            // })
-            $('#form').on('submit', function (e) {
-                e.preventDefault()
-                console.log(e)
-                $.ajax({
-
-                    url: BigNew.user_edit,
-                    type: 'post',
-                    dataType: 'json',
-                    data: new FormData(this),
-                    contentType: false,
-                    processData: false,
-                    success: function (backData) {
-                        console.log(backData);
-                        if (backData.code === 200) {
-                            alert('修改成功');
-                            parent.window.location.reload();
-                        }
-                    }
-                })
-            })
-        })
-    </script>
 </head>
 
 <body>
@@ -101,6 +67,58 @@
         </div>
     </div>
 
+    <script src="./libs/jquery-1.12.4.min.js"></script>
+    <script src="./js/http.js"></script>
+    <script>
+        $(function () {
+            $.ajax({
+                url: BigNew.user_detail,
+                success: function (response) {
+                    console.log(response);
+                    const data = response.data;
+                    const code = response.code;
+                    if (code === 200) {
+                        console.log(data)
+                        $.each(data, function (key, value) {
+                            if (key !== 'userPic') {
+                                $(`[name="${key}"`).val(value)
+                            }
+                        })
+                    }
+                    $('.user_pic').attr('src', data.userPic)
+                }
+            })
+
+            $('#exampleInputFile').change(function () {
+                console.dir(this)
+                let file = this.files[0];
+                console.log(URL.createObjectURL(file));
+                const url = URL.createObjectURL(file)
+                $('.user_pic').attr('src', url)
+            })
+
+            $('#form').on('submit', function (e) {
+                e.preventDefault()
+                console.log(e)
+                $.ajax({
+
+                    url: BigNew.user_edit,
+                    type: 'post',
+                    dataType: 'json',
+                    data: new FormData(this),
+                    contentType: false,
+                    processData: false,
+                    success: function (backData) {
+                        console.log(backData);
+                        if (backData.code === 200) {
+                            alert('修改成功');
+                            parent.window.location.reload();
+                        }
+                    }
+                })
+            })
+        })
+    </script>
 </body>
 
 </html>

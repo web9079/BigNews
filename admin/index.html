@@ -54,27 +54,22 @@
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
-            <iframe name="main_frame" style="width: 100%; height: 100%;" src="" frameborder="0"></iframe>
+            <iframe name="main_frame" src="./main_count.html" style="width: 100%; height: 100%;" src=""
+                frameborder="0"></iframe>
         </div>
     </div>
     <script>
         $(function () {
-            // const token = localStorage.getItem('token')
-            // if (!token) {
-            //     location.herf = "./login.html"
-            // }
-            // $.ajax({
-            //     type: 'get',
-            //     url: 'http://localhost:8080/api/v1/admin/user/info',
-            //     headers: {
-            //         Authorization: token
-            //     },
-            //     success: function (res) {
-            //         console.log(res)
-            //         const nickname = res.data.nickname
-            //         const userPic = res.data.userPic
-            //     }
-            // })
+            $.ajax({
+                url: BigNew.user_info,
+                success: function (response) {
+                    console.log(response)
+                    const nickname = response.data.nickname
+                    const userPic = response.data.userPic
+                    $('.user_info img,.user_center_link img').attr('src', userPic);
+                    $('.user_info span').html('欢迎' + nickname);
+                }
+            })
 
             $('.level01').click(function () {
                 $(this).addClass('active').siblings().removeClass('active')
