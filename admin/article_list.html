@@ -72,6 +72,89 @@
             </div>
         </div>
     </div>
+    <script src="./js/http.js"></script>
+    <script id='selcateList' type="text/html">
+        <option value="">所有分类</option>
+        {{ each }}
+        <option value="{{$value.id}}">{{$value.name}}</option>
+        {{ /each }}
+    </script>
+    <script id='artList' type="text/html">
+        {{ each }}
+        <tr>
+            <td>{{ $value.title }}</td>
+            <td>{{$value.author}}</td>
+            <td>{{$value.category}}</td>
+            <td class="text-center">{{$value.date}}</td>
+            <td class="text-center">{{ $value.state}}</td>
+            <td class="text-center">
+                <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
+                <a href="javascript:void(0);" data-id="{{ $value.id }}" class="btn btn-danger btn-xs delete">删除</a>
+            </td>
+        </tr>
+        {{ /each }}
+    </script>
+    <script>
+        $(function () {
+            //查询渲染分类，
+            $.ajax({
+                url: BigNew.category_list,
+                success: function (response) {
+                    // console.log(response);
+                    const data = response.data
+                    const htmlStr = template('selcateList', data)
+                    $('#selCategory').html(htmlStr)
+                }
+            })
+
+
+            function getArtList(page = 1) {
+                $.ajax({
+                    url: BigNew.article_query,
+                    data: {
+                        type: $('#selCategory').val(),
+                        state: $('#selStatus').val(),
+                        page: page,
+                        perpage: 10,
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        // console.log(response);
+                        const code = response.code;
+                        const data = response.data.data;
+                        if (code === 200) {
+                            const htmlStr = template('artList', data)
+                            $('.table tbody').html(htmlStr)
+                        }
+                    }
+                })
+            }
+            getArtList();
+
+
+            $('#btnSearch').on('click', function (e) {
+                e.preventDefault();
+                getArtList();
+            });
+
+
+            $('tbody').on('click', '.delete', function () {
+                const id = $(this).attr('data-id')
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.article_delete,
+                    data: {
+                        id: id
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        alert(response.msg);
+                        getArtList();
+                    }
+                })
+            })
+        })
+    </script>
 </body>
 
 </html>

@@ -43,13 +43,131 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
-                                data-target="#myModal">新增分类</a>
+                            <a class="btn btn-success" id="xinzengfenlei" class="btn btn-primary" data-toggle="modal"
+                                data-target="#exampleModal">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
+
+    <!-- bs模态框 -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">发布新事件</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">主题</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">内容：</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" id="submit">
+                        发布
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/http.js"></script>
+    <script id='art_t' type="text/html">
+        {{ each data }}
+        <tr>
+            <td>{{$value.name}}</td>
+            <td>{{$value.slug}}</td>
+            <td class="text-center">
+                <a data-target="#exampleModal" data-id='{{$value.id}}' data-toggle="modal"
+                    class=" btn btn-info btn-xs">编辑</a>
+                <a data-id='{{$value.id}}' class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+        {{ /each }}
+    </script>
+    <script>
+        $(function () {
+            //模板渲染
+            $.ajax({
+                url: BigNew.category_list,
+                success: function (response) {
+                    // console.log(template('art_t', response))
+                    let temp = template('art_t', response)
+                    $('.category_table tbody').html(temp)
+                }
+            })
+
+            //模态框显示的时候触发事件
+            $('#exampleModal').on('show.bs.modal', function (e) {
+                //点击事件的 relatedTarget 的文本赋值给STR
+                const $str = $(e.relatedTarget).text()
+                //模态框的按钮文字渲染
+                const id = $(e.relatedTarget).attr('data-id');
+                // console.log(id);
+
+                $('#submit').text($str)
+                //如果是新增按钮触发 类名替换 按钮显示绿色 反之是蓝色
+                if ($str === '编辑') {
+                    $('#submit').attr('class', 'btn btn-info').attr('data-id', id);
+                    const name = $(e.relatedTarget).parent().prev().prev().text();
+                    const slug = $(e.relatedTarget).parent().prev().text();
+                    $('#recipient-name').val(name);
+                    $('#message-text').val(slug)
+                } else {
+                    $('#submit').attr('class', 'btn btn-success')
+                    $('#exampleModal').trigger('reset')
+                }
+            })
+
+
+
+            $('#submit').on('click', function () {
+                const str = $(this).text()
+                if (str === '新增分类') {
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_add,
+                        data: {
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            console.log(response)
+                            if (response.code === 201) {
+                                location.reload();
+                            }
+                        }
+                    })
+                } else if (str === '编辑') {
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_edit,
+                        data: {
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            location.reload();
+                        }
+                    })
+                }
+            })
+        })
+    </script>
+</body>
 
 </html>
